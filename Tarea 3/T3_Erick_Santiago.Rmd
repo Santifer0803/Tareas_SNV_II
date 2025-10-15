@@ -1,0 +1,30 @@
+---
+title: "T3_Erick_Santiago"
+author: "Santiago Fernández y Erick Venegas"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Preparación
+
+Se inicia cargando las librerías
+
+```{r librerias}
+pacman::p_load(ChainLadder,
+               readxl)
+```
+
+Se cargan los datos correspondientes.
+
+```{r carga_datos}
+ejercicio_1 <- read_excel("Tarea 3/data/Data Tarea 3.xlsx")
+ejercicio_2 <- read_excel("Tarea 3/data/Data_Ejercicio2.xlsx")
+```
+
+# Ejercicio 1
+
+A
+
+# Ejercicio 2
+
+A
