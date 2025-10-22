@@ -17,8 +17,8 @@ pacman::p_load(ChainLadder,
 Se cargan los datos correspondientes.
 
 ```{r carga_datos}
-ejercicio_1 <- read_excel("Tarea 3/data/Data Tarea 3.xlsx")
-ejercicio_2 <- read_excel("Tarea 3/data/Data_Ejercicio2.xlsx")
+ejercicio_1 <- read_excel("data/Data Tarea 3.xlsx")
+ejercicio_2 <- read_excel("data/Data_Ejercicio2.xlsx")
 ```
 
 # Ejercicio 1
