@@ -11,6 +11,9 @@ Se inicia cargando las librerías
 
 ```{r librerias}
 pacman::p_load(ChainLadder,
+               dplyr,
+               lubridate,
+               janitor,
                readxl)
 ```
 
@@ -23,7 +26,60 @@ ejercicio_2 <- read_excel("data/Data_Ejercicio2.xlsx")
 
 # Ejercicio 1
 
-A
+Para empezar el ejercicio, se colocan las columnas con el formato correspondiente.
+
+```{r formato_fechas}
+# Se corrige el nombre de las columnas
+ejercicio_1 <- clean_names(ejercicio_1)
+
+# Se corrige el formato de las fechas
+ejercicio_1$fecha_notifi <- as.Date(ejercicio_1$fecha_notifi)
+ejercicio_1$fecha_evento <- as.Date(ejercicio_1$fecha_evento)
+```
+
+
+## Inciso A
+
+Para construir el triángulo de runoff, iniciaremos creando los índices correspondientes. Para esto, crearemos un índice iniciando en 0 para asignarle a cada uno de los años, al igual que otro con el año en el que se notificó el evento.
+
+```{r indices_1}
+# Índices de años de ocurrencia y desarrollo
+ejercicio_1 <- ejercicio_1 %>%
+  mutate(
+    ocurrencia = year(fecha_evento) - min(year(fecha_evento)),
+    desarrollo = year(fecha_notifi) - year(fecha_evento)
+  )
+```
+
+Posteriormente, se procede a construir el triángulo de agotamiento. Se asume que el cálculo de la reserva se hará con la suma de los montos en cada índice de ocurrencia y desarrollo, no con la cantidad de siniestros presentados.
+
+```{r triangulo_1}
+# Se crea el  triángulo de runoff
+triangulo_1 <-
+  tapply(ejercicio_1$monto_siniestro, list(
+    ejercicio_1$ocurrencia,
+    ejercicio_1$desarrollo
+  ), sum)
+
+# Se muestra el triángulo de runoff para conprobar el resultado
+triangulo_1
+```
+
+Como se puede apreciar, este es el triángulo de montos individuales, por lo que procedemos a calcular el de montos acumulados, el cual es necesario para todos los métodos posteriores.
+
+```{r acumulados_1}
+# Se convierte el triángulo de runoff incremental a uno acumulado
+triangulo_1 <- incr2cum(triangulo_1)
+
+# Se muestra el triángulo para combrobar el resultado
+triangulo_1
+```
+
+Con esta información, podemos proceder con los 3 métodos requeridos.
+
+## Inciso B
+
+
 
 # Ejercicio 2
 
