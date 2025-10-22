@@ -79,6 +79,137 @@ Con esta información, podemos proceder con los 3 métodos requeridos.
 
 ## Inciso B
 
+### Chain ladder
+
+Iniciamos con el método de Chain ladder, pues es la base para los otros métodos. Para esto, iniciamos calculando los factores de desarrollo, tal y como se muestra en el [tutorial](https://cran.rstudio.com/web/packages/ChainLadder/vignettes/ChainLadder.html#using-the-chainladder-package) enviado por el profesor.
+
+```{r factores_desarrollo_1}
+# Se calculan los factores de desarrollo individuales
+factores_desarrollo_1 <- sapply(1:(ncol(triangulo_1) - 1),
+                                function(i) {
+                                  sum(triangulo_1[c(1:(ncol(triangulo_1) - i)), i + 1]) / sum(triangulo_1[c(1:(ncol(triangulo_1) - i)), i])
+                                })
+
+# Se agrega el 1, correspondiente al último factor de desarrollo
+factores_desarrollo_1 <- c(factores_desarrollo_1, 1)
+
+# Con lo anterior, se calculan los factores de desarrollo acumulados
+desarrollo_acum_1 <-
+  cumprod(sort(factores_desarrollo_1, decreasing = FALSE))
+```
+
+Con los factores de desarrollo acumulados ($\lambda$), procedemos a calcular los pagos ultimate.
+
+```{r ultimate_cl_1}
+# Se extraen los últimos pagos conocidos
+pagos_conocidos_1 <- sapply(1:nrow(triangulo_1), function(i) {
+  triangulo_1[i, ncol(triangulo_1) - i + 1]
+})
+
+# Se calculan los pagos ultimate
+ultimate_cl_1 <- pagos_conocidos_1 * desarrollo_acum_1
+
+# Se muestran los últimos pagos conocidos y los ultimate
+data.frame(ultimo_conocido = pagos_conocidos_1,
+           ultimate_cl = ultimate_cl_1)
+```
+
+Finalmente, se calculan las reservas bajo el método de Chain Ladder.
+
+```{r reserva_cl_1}
+# Cálculo de la reserva
+reserva_cl_1 <- ultimate_cl_1 - pagos_conocidos_1
+reserva_tot_cl_1 <- sum(reserva_cl_1)
+
+# Se muestra la reserva
+reserva_cl_1
+```
+
+### Bornhuetter-Ferguson
+
+Para este método requerimos de las primas acumuladas en el año y, ya que no se menciona información sobre estas explícitamente, se calculan a través del ratio de siniestralidad (LR). Vea que:
+
+$$LR = \frac{Siniestros_i}{Primas_i} \implies Primas_i = \frac{Siniestros_i}{LR}$$
+
+Es decir, a través del ratio de siniestralidad del $80\%$ y los siniestros (que podemos calcular), podemos obtener las primas brutas ($\mu$) necesarias.
+
+```{r calculo_mu}
+# Se calculan las primas correspondientes
+primas_brutas <-
+  as.vector(tapply(ejercicio_1$monto_siniestro, ejercicio_1$ocurrencia, sum)) / 0.8
+
+# Se muestran las primas brutas
+primas_brutas
+
+# Se obtiene el promedio de las primas
+primas_brutas <- mean(primas_brutas)
+```
+
+Como no hay mucha información del último año, la prima obtenida es excesivamente baja, por lo que se decide usar un promedio de las primas como $\mu$.
+
+Posteriormente, para seguir con este método se requieren los coeficientes $\beta_i = \frac{1}{\lambda_i}$, lo cual se muestra a continuación.
+
+```{r calculo_betas}
+# Cálculo de betas
+betas <- 1 / desarrollo_acum_1
+```
+
+Con esta información, basta recordar la fórmula para los cálculos de los ultimate a través de BF:
+
+$$\hat{C_{i, J} ^ {BF}} = C_{i, I - i} + (1 - \beta_{I - i}) \cdot \mu_i$$
+
+Con lo cual, los pagos ultimate son:
+
+```{r ultimate_BF}
+# Cálculo de ultimate de Bornhuetter-Ferguson
+ultimate_bf <- pagos_conocidos_1 + (1 - betas) * primas_brutas
+```
+
+Finalmente, se calculan las reservas correspondientes:
+
+```{r reservas_bf}
+# Cálculo de la reserva
+reserva_bf <- ultimate_bf - pagos_conocidos_1
+reserva_tot_bf <- sum(reserva_bf)
+
+# Se muestra la reserva
+reserva_bf
+```
+
+### Cape Cod
+
+En este caso tenemos la mayoría de elementos, basta con calcular la razón de siniestralidad global robusta ($\hat{\kappa} ^ {CC}$).
+
+$$\hat{\kappa} ^ {CC} = \dfrac{\sum_{i = 0} ^ I C_{i, I - i}}{\sum_{i = 0} ^ I \beta_{I - i} \cdot \Pi_i}$$
+
+Por lo que su cálculo es el siguiente:
+
+```{r kappa_cc}
+# Se calculan las primas correspondientes
+primas_brutas <-
+  as.vector(tapply(ejercicio_1$monto_siniestro, ejercicio_1$ocurrencia, sum)) / 0.8
+
+# Se calcula el factor kappa
+kappa_cc <- sum(pagos_conocidos_1) / sum(betas * primas_brutas)
+```
+
+Se calculan los ultimate correspondientes.
+
+```{r ultimate_cc}
+# Cálculo del ultimate
+ultimate_cc <- pagos_conocidos_1 + (1 - betas) * kappa_cc * primas_brutas
+```
+
+Finalmente, se calcula la reserva correspondiente.
+
+```{r reserva_cc}
+# Cálculo de la reserva
+reserva_cc <- ultimate_cc - pagos_conocidos_1
+reserva_tot_cc <- sum(reserva_cc)
+
+# Se muestra la reserva
+reserva_cc
+```
 
 
 # Ejercicio 2
