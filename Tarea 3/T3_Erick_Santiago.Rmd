@@ -263,9 +263,11 @@ Para iniciar el análisis, se procede a graficar la estimación de $\mu$ de los 
   ggplotly(tooltip = "text")
 ```
 
-En el gráfico anterior, se
+En el gráfico anterior, se puede ver que las primas utilizadas para la estimación de los pagos ultimate es considerablemente mayor en el proceso de Bornhuetter Ferguson, esto a causa del parámetro $\hat{\kappa} < 1$, el cual indica que tenemos ganancias en la empresa correspondiente. En particular, se puede apreciar que las primas del método de Bornhuetter Ferguson son más del doble de las estimadas por la metodología de Cape Cod.
 
-Además, como se puede apreciar en la siguiente figura, esta diferencia en la estimación de primas tiene un gran impacto en las reservas a lo largo del tiempo:
+Hay que recordar que, a pesar de tener diferencias, los métodos de Bornhuetter Ferguson y Cape Cod utilizan una ponderación entre la estimación del método Chain Ladder y una prima exógena (BF) o ajustada (CC). Por lo cual, entre menos información disponible exista en los datos, la estimación exógena/ajustada cobrará más peso para el cálculo del pago ultimate.
+
+Por lo anterior, esta diferencia en la estimación de primas tiene un gran impacto en las reservas a lo largo del tiempo, como se aprecia en la siguiente figura:
 
 ```{r prima_metodos, warning = FALSE}
 # Se juntan los datos requeridos en un solo dataframe y se grafica
