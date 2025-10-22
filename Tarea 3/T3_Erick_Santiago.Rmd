@@ -149,25 +149,15 @@ reserva_cl_1
 
 ### Bornhuetter-Ferguson
 
-Para este método requerimos de las primas acumuladas en el año y, ya que no se menciona información sobre estas explícitamente, se calculan a través del ratio de siniestralidad (LR). Vea que:
-
-$$LR = \frac{Siniestros_i}{Primas_i} \implies Primas_i = \frac{Siniestros_i}{LR}$$
-
-Es decir, a través del ratio de siniestralidad del $80\%$ y los siniestros (que podemos calcular), podemos obtener las primas brutas ($\mu$) necesarias.
+Para este método requerimos de las primas acumuladas en el año, las cuales se calculan a través del ratio de siniestralidad (LR). Es decir, a través del ratio de siniestralidad del $80\%$ y las primas brutas dadas, podemos obtener las primas ($\mu$) necesarias.
 
 ```{r calculo_mu}
 # Se calculan las primas correspondientes
-primas_brutas <-
-  as.vector(tapply(ejercicio_1$monto_siniestro, ejercicio_1$ocurrencia, sum)) / 0.8
+primas_brutas <- df_primas$montos
 
 # Se muestran las primas brutas
 primas_brutas
-
-# Se obtiene el promedio de las primas
-primas_brutas <- mean(primas_brutas)
 ```
-
-Como no hay mucha información del último año de ocurrencia, la prima obtenida es excesivamente baja, por lo que se decide usar un promedio de las primas como $\mu$.
 
 Posteriormente, para seguir con este método se requieren los coeficientes $\beta_i = \frac{1}{\lambda_i}$, lo cual se muestra a continuación.
 
@@ -207,10 +197,6 @@ $$\hat{\kappa} ^ {CC} = \dfrac{\sum_{i = 0} ^ I C_{i, I - i}}{\sum_{i = 0} ^ I \
 Por lo que su cálculo es el siguiente:
 
 ```{r kappa_cc}
-# Se calculan las primas correspondientes
-primas_brutas <-
-  as.vector(tapply(ejercicio_1$monto_siniestro, ejercicio_1$ocurrencia, sum)) / 0.8
-
 # Se calcula el factor kappa
 kappa_cc <- sum(pagos_conocidos_1) / sum(betas * primas_brutas)
 ```
@@ -242,7 +228,7 @@ Para iniciar el análisis, se procede a graficar la estimación de $\mu$ de los 
 (
   data.frame(
     "indice" = 0:8,
-    "prima_bf" = rep(mean(primas_brutas), 9),
+    "prima_bf" = primas_brutas,
     "prima_cc" = kappa_cc * primas_brutas
   ) %>% ggplot(aes(x = indice)) +
     geom_line(aes(y = prima_bf / 1000000, color = "BF")) +
@@ -277,9 +263,7 @@ Para iniciar el análisis, se procede a graficar la estimación de $\mu$ de los 
   ggplotly(tooltip = "text")
 ```
 
-En el gráfico anterior, como se mencionó en su momento, la prima usada para calcular el método de Bornhuetter Ferguson se tomó constante debido al bajo valor de la prima individual en el último año de ocurrencia. Por otro lado, este comportamiento irregular se puede apreciar en el método de Cape Cod, mientras que las primas muestran un comportamiento creciente hasta el tercer año de ocurrencia, posteriormente derecen, llegando a una diferencia de más de 3 millones de colones en el periodo 7 y de más de 13 millones en el último periodo.
-
-Lo anterior causa que el método de Cape Cod sobreestime las primas del primer al sexto periodo, sin embargo, subestima de manera drástica en el séptimo y en el octavo periodo, con respecto al método de Bornhuetter Ferguson. Esta diferencia se resalta en el último periodo, pues las primas recolectadas estimadas son menores a 2 millones de colones, lo cual parece poco realista, pues la siguiente prima más baja supera los 11 millones de colones.
+En el gráfico anterior, se
 
 Además, como se puede apreciar en la siguiente figura, esta diferencia en la estimación de primas tiene un gran impacto en las reservas a lo largo del tiempo:
 
