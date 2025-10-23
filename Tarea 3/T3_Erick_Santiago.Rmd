@@ -269,7 +269,7 @@ Hay que recordar que, a pesar de tener diferencias, los métodos de Bornhuetter 
 
 Por lo anterior, esta diferencia en la estimación de primas tiene un gran impacto en las reservas a lo largo del tiempo, como se aprecia en la siguiente figura:
 
-```{r prima_metodos, warning = FALSE}
+```{r reservas_anuales, warning = FALSE}
 # Se juntan los datos requeridos en un solo dataframe y se grafica
 (
   data.frame(
@@ -317,13 +317,54 @@ Por lo anterior, esta diferencia en la estimación de primas tiene un gran impac
         indice
       )
     )) +
-    labs(x = "Año de ocurrencia", y = "Prima (millones de colones)", color = "Método") +
+    labs(x = "Año de ocurrencia", y = "Reserva (millones de colones)", color = "Método") +
     theme_minimal()
 ) %>%
   ggplotly(tooltip = "text")
 ```
 
-Se observa que las reservas de Bornhuetter Ferguson y Cape Con poseen tendencias similares hasta el sexto periodo, con algunas diferencias debido a la sobreestimación de primas mencionada anteriormente. No obstante, en los últimos periodos, en donde hay menos datos y, por tanto, mayor variabilidad, 
+Es claro que los métodos de Chain Ladder y Cape Cod presentan resultados similares, mientras que, el método de Bornhuetter Ferguson parece estar sobreestimando las reservas requeridas anualmente. Esto último, una vez más, se justifica con las primas utilizadas para la estimación de esta metodología, lo que resulta claro por la gran diferencia que existe entre este procedimiento y los otros 2.
+
+Todo parece indicar que el método de Bornhuetter Ferguson, bajo condiciones normales, no es la mejor opción a elegir, pues se estaría siendo demasiado conservador. Por otro lado, resulta difícil elegir entre los métodos de Cape Cod y Chain Ladder, pues parece que otorgan resultados bastante similares.
+
+Para dilucidar una opción, se muestra la reserva total de cada uno de los 3 métodos implementados:
+
+```{r reservas_totales}
+# Se juntan los datos y se grafican
+(
+  data.frame(
+    metodo = c("Chain Ladder", "Bornhuetter Ferguson", "Cape Cod"),
+    reserva = c(reserva_tot_cl_1, reserva_tot_bf, reserva_tot_cc),
+    texto = paste(
+      "Método:",
+      c("Chain Ladder", "Bornhuetter Ferguson", "Cape Cod"),
+      "<br>Reserva:",
+      round(c(
+        reserva_tot_cl_1, reserva_tot_bf, reserva_tot_cc
+      ) / 1e6, 2),
+      "millones"
+    )
+  ) %>% ggplot(aes(
+    x = metodo,
+    y = reserva / 1e6,
+    fill = metodo,
+    text = texto
+  )) +
+    geom_col(width = 0.6) +
+    labs(x = "Método",
+         y = "Reserva (millones de colones)",
+         fill = "Método") +
+    theme_minimal()
+) %>%
+  ggplotly(tooltip = "text") %>%
+  layout(showlegend = FALSE)
+```
+
+En esta última figura se vuelve a destacar el valor de Bornhuetter Ferguson, pues supera en casi 100 millones de colones a la reserva de Cape Cod, la cual es la siguiente más grande. Con esto se descarta definitivamente esta opción (BF), se estaría creando un ahorro excesivo sin motivo aparente, pues, nuevamente, queda claro que se sobreestima el valor requerido.
+
+Con respecto a Cape Cod y Chain Ladder, se puede ver que el primero es ligeramente más conservador que Chain Ladder, pues la reserva es mayor. Aunque, a nivel práctico, la diferencia es tan pequeña (en término del dinero que mueve la empresa) que son prácticamente iguales.
+
+En conclusión, al órgano de dirección de la empresa le recomendaría, en lo personal, la reserva obtenida a través del método de Chain Ladder. Esto debido, en primer lugar, al resultado obtenido en comparación a los demás métodos, pues se comprueba que es muy similar a una metodología robusta como el proceso de Cape Cod. Además, es claro que es el método más sencillo de implementar y entender, por lo cual, favorece a la parsimonia del modelo.
 
 # Ejercicio 2
 
