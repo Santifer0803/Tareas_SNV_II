@@ -76,20 +76,22 @@ ejercicio_1 <- ejercicio_1 %>%
 Posteriormente, se procede a construir el triángulo de agotamiento a través de la función pedida. Se asume que el cálculo de la reserva se hará con la suma de los montos en cada índice de ocurrencia y desarrollo, no con la cantidad de siniestros presentados.
 
 ```{r triangulo_1}
-# Se crea el  triángulo de runoff
-df_triangulo <- function(df, lista_ocuurrencia){
+# Se crea la función del triángulo de runoff
+df_triangulo <- function(montos, ocurrencia, desarrollo) {
+  triangulo <-
+    tapply(montos,
+           list(ocurrencia,
+                desarrollo),
+           sum)
   
+  # Se devuelve el triángulo de agotamiento
+  return(triangulo)
 }
 
-
-triangulo_1 <-
-  tapply(ejercicio_1$monto_siniestro, list(
-    ejercicio_1$ocurrencia,
-    ejercicio_1$desarrollo
-  ), sum)
-
-# Se muestra el triángulo de runoff para conprobar el resultado
-triangulo_1
+# Se crea el triángulo
+triangulo_1 <- df_triangulo(montos = ejercicio_1$monto_siniestro,
+                            ocurrencia = ejercicio_1$ocurrencia,
+                            desarrollo = ejercicio_1$desarrollo)
 ```
 
 Como se puede apreciar, este es el triángulo de montos individuales, por lo que procedemos a calcular el de montos acumulados, el cual es necesario para todos los métodos posteriores.
