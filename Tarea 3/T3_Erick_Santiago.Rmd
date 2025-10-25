@@ -78,6 +78,7 @@ Posteriormente, se procede a construir el triángulo de agotamiento a través de
 ```{r triangulo_1}
 # Se crea la función del triángulo de runoff
 df_triangulo <- function(montos, ocurrencia, desarrollo) {
+  # Triángulo de agotamiento
   triangulo <-
     tapply(montos,
            list(ocurrencia,
